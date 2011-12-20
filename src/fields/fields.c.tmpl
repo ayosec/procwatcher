@@ -57,6 +57,40 @@ int template_is_valid(const char* template) {
 
 }
 
+static int compf_pcpu(char* output, size_t size, const proc_t* proc) {
+  static unsigned long int last_total_system = 0;
+  static unsigned long int last_total_proc = 0;
+
+  FILE* proc_stat;
+  double pcpu;
+  unsigned long int t_user, t_user_low_priority, t_system, t_idle;
+  unsigned long int total_system, total_proc;
+
+  /* Read current time */
+  proc_stat = fopen("/proc/stat", "r");
+  if(proc_stat == NULL) {
+    perror("/proc/stat");
+    return 0;
+  }
+
+  pcpu = 0;
+  if(fscanf(proc_stat, "cpu %lu %lu %lu %lu", &t_user, &t_user_low_priority, &t_system, &t_idle) == 4) {
+
+    total_system = t_user + t_user_low_priority + t_system + t_idle;
+    total_proc = proc->utime + proc->stime + proc->cutime + proc->cstime;
+
+    if(last_total_system && last_total_proc)
+      pcpu = (100 * (double)(total_proc - last_total_proc)) / (total_system - last_total_system);
+
+    last_total_system = total_system;
+    last_total_proc = total_proc;
+  }
+
+  fclose(proc_stat);
+
+  return snprintf(output, size, "%.2f", pcpu);
+}
+
 int template_format(const proc_t* proc,
                     const char* fields,
                     char* output_buffer, size_t output_size) {

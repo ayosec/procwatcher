@@ -2,8 +2,9 @@
 from generator import Builder
 
 builder = Builder()
-field = builder.field
 group = builder.group
+field = builder.field
+compf = builder.compf
 
 Int = "%d"
 Unsigned = "%u"
@@ -33,6 +34,7 @@ field("processor", Int,          "current (or most recent?) CPU")
 
 group("Times")
 
+compf("%cpu",       "pcpu",    "CPU usage")
 field("utime",      ULongLong, "user-mode CPU time accumulated by process")
 field("stime",      ULongLong, "kernel-mode CPU time accumulated by process")
 field("cutime",     ULongLong, "cumulative utime of process and reaped children")

@@ -32,6 +32,14 @@ class Builder:
       "desc": desc
     })
 
+  def compf(self, name, function, desc):
+    self.current_group["fields"].append({
+      "type": "computed",
+      "name": name,
+      "function": function,
+      "desc": desc
+    })
+
   def generate_help(self):
     wrapper = TextWrapper(subsequent_indent = " " * 15)
 
@@ -48,38 +56,39 @@ class Builder:
       replace("'", "\\'").
       replace("\n", "\\n"))
 
+  def generate_calls(self):
+    # Blocks to generate the values
+    to_call = []
+    for field in self.fields():
+      c_expr = None
+      if field["type"] == "field":
+        c_expr = """snprintf(output_buffer + written_chars, output_size - written_chars, "%(format)s", proc->%(name)s)"""
+      elif field["type"] == "computed":
+        c_expr = """compf_%(function)s(output_buffer + written_chars, output_size - written_chars, proc)"""
+
+      if c_expr is None:
+        raise "Unkown field: " + repr(field)
+
+      to_call.append(" " * 6 +
+          ("""if(strcmp(name, "%(name)s") == 0) { written_chars += """ + c_expr + """; goto skip_cmps; }""") % field)
+
+    return "\n" + "\n\n".join(to_call)
+
+  def fields(self):
+    return reduce(lambda a, b: a + b, [g["fields"] for g in self.groups])
+
   def build(self, output):
     template = Template(open(os.path.dirname(__file__) + "/fields.c.tmpl").read())
     attributes = {}
-
-    fields = reduce(lambda a, b: a + b, [g["fields"] for g in self.groups])
 
     # Used in template_is_valid to check if the field item is valid
     #attributes["name_comparator"] = "(" + " || ".join(
     #  [("""strcmp("%s", name) == 0""" % f["name"]) for f in fields]
     #) + ")"
-    attributes["name_comparator"] = tree_fields_cmp([f["name"] for f in fields], 0)
+    attributes["name_comparator"] = tree_fields_cmp([f["name"] for f in self.fields()], 0)
 
-    # Blocks to generate the values
-    to_generate = []
-    to_call = []
-    for field in fields:
-      fn_name = "_fv_" + field["name"]
-      if field["type"] == "field":
-
-        to_call.append("""
-      if(strcmp(name, "%(name)s") == 0) {
-        written_chars += snprintf(output_buffer + written_chars,
-                                  output_size - written_chars,
-                                  "%(format)s",
-                                  proc->%(name)s);
-        goto skip_cmps;
-      }""" % field)
-
-    attributes["values"] = "\n" + "\n\n".join(to_call)
-
+    attributes["values"] = self.generate_calls()
     attributes["help_fields"] = self.generate_help()
-
     attributes["mark_for_generated"] = "GENERATED FILE. DO NOT EDIT"
 
     # Static header
