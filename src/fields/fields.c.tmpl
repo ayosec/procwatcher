@@ -57,6 +57,14 @@ int template_is_valid(const char* template) {
 
 }
 
+static int compf_timestamp(char* output, size_t size, const proc_t* proc) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  unsigned long int timestamp = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+
+  return snprintf(output, size, "%lu", timestamp);
+}
+
 static int compf_pcpu(char* output, size_t size, const proc_t* proc) {
   static unsigned long int last_total_system = 0;
   static unsigned long int last_total_proc = 0;

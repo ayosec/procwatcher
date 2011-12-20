@@ -34,12 +34,13 @@ field("processor", Int,          "current (or most recent?) CPU")
 
 group("Times")
 
-compf("%cpu",       "pcpu",    "CPU usage")
-field("utime",      ULongLong, "user-mode CPU time accumulated by process")
-field("stime",      ULongLong, "kernel-mode CPU time accumulated by process")
-field("cutime",     ULongLong, "cumulative utime of process and reaped children")
-field("cstime",     ULongLong, "cumulative stime of process and reaped children")
-field("start_time", ULongLong, "start time of process -- seconds since 1-1-70")
+compf("%cpu",       "pcpu",      "CPU usage")
+compf("timestamp",  "timestamp", "Timestamp of every printed line (in ms)")
+field("utime",      ULongLong,   "user-mode CPU time accumulated by process")
+field("stime",      ULongLong,   "kernel-mode CPU time accumulated by process")
+field("cutime",     ULongLong,   "cumulative utime of process and reaped children")
+field("cstime",     ULongLong,   "cumulative stime of process and reaped children")
+field("start_time", ULongLong,   "start time of process -- seconds since 1-1-70")
 
 group("Memory")
 
