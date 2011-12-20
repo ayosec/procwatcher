@@ -1,0 +1,117 @@
+/*
+ * Copyright (C) 2011 Ayose <http://ayosec.com/>
+ *
+ * This file is part of ProcWatcher.
+ *
+ * ProcWatcher is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ProcWatcher is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*
+ * $mark_for_generated
+ */
+
+#include "procwatcher.h"
+
+int template_is_valid(const char* template) {
+
+  char name[512];
+
+  const char *name_iterator;
+  int name_offset;
+
+  name_iterator = template;
+  name_offset = 0;
+  while(1) {
+    if(*name_iterator == '\0' || *name_iterator == ',')  {
+      name[name_offset] = '\0';
+      if(!($name_comparator)) {
+        fprintf(stderr, "Unkown field: %s\n", name);
+        return 0;
+      }
+
+      /* EOF? */
+      if(*name_iterator == '\0')
+        return 1;
+
+      /* Next item */
+      name_offset = 0;
+      name_iterator++;
+    }
+
+    name[name_offset++] = *name_iterator++;
+  }
+
+  return 0; /* Unreachable */
+
+}
+
+int template_format(const proc_t* proc,
+                    const char* fields,
+                    char* output_buffer, size_t output_size) {
+
+  char name[512];
+  const char *name_iterator;
+
+  int written_chars, name_offset;
+
+  name_iterator = fields;
+  name_offset = 0;
+
+  while((written_chars + 1) < output_size) {
+
+    /* Check if we have found the end of a field */
+    if(*name_iterator == '\0' || *name_iterator == ',')  {
+
+      /* Add a ',' if this is not the first field */
+      if(written_chars > 0)
+        output_buffer[written_chars++] = ',';
+
+      /* string-end */
+      name[name_offset] = '\0';
+
+      /* block calls: */$values
+
+skip_cmps:
+
+      /* Since snprintf can return a value bigger than the buffer
+       * (when the string is truncated) we will stop on that case
+       */
+      if(written_chars >= output_size) {
+        output_buffer[output_size - 1] = '\0';
+        return output_size - 1;
+      }
+
+      /* EOF? */
+      if(*name_iterator == '\0')
+        return written_chars;
+
+      /* Next item */
+      name_offset = 0;
+      name_iterator++;
+    }
+
+    name[name_offset++] = *name_iterator++;
+  }
+
+  return written_chars;
+
+}
+
+void template_fields_help(FILE* output) {
+  fputs("$help_fields", output);
+}
+
+/* vim: ft=c
+ */

@@ -1,1 +1,1 @@
-set wildignore+=procwatcher,*.o
+set wildignore+=procwatcher,*.o,*.pyc

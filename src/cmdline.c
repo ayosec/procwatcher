@@ -27,7 +27,7 @@ void parse_args(int argc, char** argv, struct options* options) {
 
   memset(options, 0, sizeof(struct options));
 
-  while((option = getopt(argc, argv, "+p:f:i:o:")) != -1) {
+  while((option = getopt(argc, argv, "+p:f:i:o:F")) != -1) {
     switch(option) {
       case 'p':
         options->pid = strtoul(optarg, &errptr, 10);
@@ -38,7 +38,7 @@ void parse_args(int argc, char** argv, struct options* options) {
         break;
 
       case 'f':
-        if(!is_valid_format(optarg)) {
+        if(!template_is_valid(optarg)) {
           fprintf(stderr, "%s is not a valid format string.\n", optarg);
           exit(2);
         }
@@ -64,6 +64,10 @@ void parse_args(int argc, char** argv, struct options* options) {
           exit(4);
         }
         break;
+
+      case 'F':
+        template_fields_help(stderr);
+        exit(0);
 
       default:
         fprintf(stderr, "%c is not a valid option.\n", option);

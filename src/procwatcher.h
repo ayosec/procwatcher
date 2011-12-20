@@ -30,8 +30,9 @@
 #include <proc/readproc.h>
 
 /* fields.c */
-int format_proc(const proc_t*, const char*, char*, size_t);
-int is_valid_format(const char*);
+int template_format(const proc_t*, const char*, char*, size_t);
+int template_is_valid(const char*);
+void template_fields_help(FILE*);
 
 /* cmdline.c */
 #define INVALID_FORMAT -1

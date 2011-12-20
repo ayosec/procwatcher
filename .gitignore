@@ -2,3 +2,5 @@
 .sconsign.dblite
 procwatcher
 src/*.o
+src/fields.c
+src/fields/*.pyc

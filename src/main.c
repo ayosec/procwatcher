@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     if(!get_proc_stats(options.pid, &stat))
       exit(0);
 
-    chars_written = format_proc(&stat, options.fields, buf, sizeof(buf));
+    chars_written = template_format(&stat, options.fields, buf, sizeof(buf));
     fwrite(buf, chars_written, 1, options.output);
     fputc('\n', options.output);
 
