@@ -63,6 +63,9 @@ void parse_args(int argc, char** argv, struct options* options) {
           perror(optarg);
           exit(4);
         }
+
+        /* Make the file stream unbuffered */
+        setvbuf(options->output, NULL, _IONBF, 0);
         break;
 
       case 'F':
