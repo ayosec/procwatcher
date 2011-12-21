@@ -38,6 +38,8 @@ void template_fields_help(FILE*);
 #define INVALID_FORMAT -1
 struct options {
   pid_t pid;
+  char** command;
+
   unsigned int interval;
 
   const char* fields;

@@ -83,6 +83,10 @@ void parse_args(int argc, char** argv, struct options* options) {
     exit(11);
   }
 
+  /* Command to execute */
+  if(optind < argc)
+    options->command = argv + optind;
+
   /* Set default values */
   if(!options->output)
     options->output = stdout;
