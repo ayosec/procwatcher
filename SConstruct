@@ -14,6 +14,7 @@ def Fields(target, source, env):
   return None
 
 env = Environment(CFLAGS="-Wall -D_GNU_SOURCE=1",
+                  CC=os.getenv("CC", "gcc"),
                   BUILDERS = { 'Fields': Builder(action = Fields) })
 
 if os.getenv("DEBUG"):
